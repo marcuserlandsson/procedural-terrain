@@ -7,10 +7,11 @@ var image_name = "Aborrvattnet"
 @export var water_map_path: String = "res://maps/watermaps/" + image_name + ".png"
 @export var terrain_scale: float = 1.0  # Scale factor for terrain size (1.0 = 1 unit per pixel)
 @export var height_scale: float = 20.0    # How much to scale height values
-@export var resolution: int = 256        # Mesh resolution (vertices per side)
+@export var resolution: int = -1        # Mesh resolution (vertices per side). -1 = match image size
 
 var height_map: Image
 var water_map: Image
+var actual_resolution: int = 256
 
 func _ready():
 	load_maps()
@@ -56,6 +57,14 @@ func create_terrain():
 	
 	var map_size = height_map.get_size()
 	
+	# Set resolution to match image if not specified
+	if resolution <= 0:
+		actual_resolution = max(map_size.x, map_size.y)
+		print("Resolution set to match image: ", actual_resolution)
+	else:
+		actual_resolution = resolution
+		print("Using custom resolution: ", actual_resolution)
+	
 	# Calculate terrain dimensions based on image size, maintaining aspect ratio
 	var terrain_size_x = map_size.x * terrain_scale
 	var terrain_size_z = map_size.y * terrain_scale
@@ -63,11 +72,11 @@ func create_terrain():
 	print("Terrain dimensions: ", terrain_size_x, " x ", terrain_size_z, " units")
 	
 	# Generate vertices
-	for z in range(resolution + 1):
-		for x in range(resolution + 1):
+	for z in range(actual_resolution + 1):
+		for x in range(actual_resolution + 1):
 			# Get UV coordinates (0-1)
-			var u = float(x) / resolution
-			var v = float(z) / resolution
+			var u = float(x) / actual_resolution
+			var v = float(z) / actual_resolution
 			
 			# Sample height map
 			var pixel_x = int(u * map_size.x)
@@ -88,19 +97,19 @@ func create_terrain():
 			surface_tool.add_vertex(Vector3(pos_x, pos_y, pos_z))
 	
 	# Generate indices for triangles (reversed winding order to face up)
-	for z in range(resolution):
-		for x in range(resolution):
-			var i = z * (resolution + 1) + x
+	for z in range(actual_resolution):
+		for x in range(actual_resolution):
+			var i = z * (actual_resolution + 1) + x
 			
 			# First triangle
 			surface_tool.add_index(i)
 			surface_tool.add_index(i + 1)
-			surface_tool.add_index(i + resolution + 1)
+			surface_tool.add_index(i + actual_resolution + 1)
 			
 			# Second triangle
 			surface_tool.add_index(i + 1)
-			surface_tool.add_index(i + resolution + 2)
-			surface_tool.add_index(i + resolution + 1)
+			surface_tool.add_index(i + actual_resolution + 2)
+			surface_tool.add_index(i + actual_resolution + 1)
 	
 	# Generate normals
 	surface_tool.generate_normals()
@@ -115,7 +124,7 @@ func create_terrain():
 	material.roughness = 0.8
 	mesh_instance.set_surface_override_material(0, material)
 	
-	print("Terrain created with ", resolution + 1, "x", resolution + 1, " vertices")
+	print("Terrain created with ", actual_resolution + 1, "x", actual_resolution + 1, " vertices")
 
 func create_water():
 	if not water_map or not height_map:
@@ -192,11 +201,11 @@ func create_water():
 	var terrain_size_z = map_size.y * terrain_scale
 	
 	# Generate vertices for water (flat surface at constant level)
-	for z in range(resolution + 1):
-		for x in range(resolution + 1):
+	for z in range(actual_resolution + 1):
+		for x in range(actual_resolution + 1):
 			# Get UV coordinates (0-1)
-			var u = float(x) / resolution
-			var v = float(z) / resolution
+			var u = float(x) / actual_resolution
+			var v = float(z) / actual_resolution
 			
 			# Sample water map to check if this area has water
 			var pixel_x = int(u * map_size.x)
@@ -218,19 +227,19 @@ func create_water():
 			surface_tool.add_vertex(Vector3(pos_x, pos_y, pos_z))
 	
 	# Generate indices for triangles (same as terrain)
-	for z in range(resolution):
-		for x in range(resolution):
-			var i = z * (resolution + 1) + x
+	for z in range(actual_resolution):
+		for x in range(actual_resolution):
+			var i = z * (actual_resolution + 1) + x
 			
 			# First triangle
 			surface_tool.add_index(i)
 			surface_tool.add_index(i + 1)
-			surface_tool.add_index(i + resolution + 1)
+			surface_tool.add_index(i + actual_resolution + 1)
 			
 			# Second triangle
 			surface_tool.add_index(i + 1)
-			surface_tool.add_index(i + resolution + 2)
-			surface_tool.add_index(i + resolution + 1)
+			surface_tool.add_index(i + actual_resolution + 2)
+			surface_tool.add_index(i + actual_resolution + 1)
 	
 	# Generate normals
 	surface_tool.generate_normals()
