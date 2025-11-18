@@ -9,7 +9,7 @@
 script = ExtResource("1_terrain")
 
 [node name="Camera3D" type="Camera3D" parent="."]
-transform = Transform3D(1, 0, 0, 0, 0, 1, 0, -1, 0, 0, 400, 0)
+transform = Transform3D(1, 0, 0, 0, 0, 1, 0, -1, 0, 0, 322.30374, 209.36072)
 fov = 60.0
 script = ExtResource("2_camera")
 
