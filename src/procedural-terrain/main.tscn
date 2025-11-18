@@ -1,0 +1,17 @@
+[gd_scene load_steps=3 format=3 uid="uid://l4jvpo3xs27y"]
+
+[ext_resource type="Script" uid="uid://wsw0c7jdo80h" path="res://terrain.gd" id="1_terrain"]
+[ext_resource type="Script" uid="uid://c86kibxlcnidu" path="res://camera_controller.gd" id="2_camera"]
+
+[node name="Main" type="Node3D"]
+
+[node name="Terrain" type="Node3D" parent="."]
+script = ExtResource("1_terrain")
+
+[node name="Camera3D" type="Camera3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 0, 1, 0, -1, 0, 0, 400, 0)
+fov = 60.0
+script = ExtResource("2_camera")
+
+[node name="DirectionalLight3D" type="DirectionalLight3D" parent="."]
+transform = Transform3D(0.866025, -0.433013, 0.25, 0, 0.5, 0.866025, -0.5, -0.75, 0.433013, 0, 20, 0)

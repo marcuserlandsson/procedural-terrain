@@ -13,6 +13,7 @@ config_version=5
 config/name="Procedural-terrain"
 config/features=PackedStringArray("4.5", "Forward Plus")
 config/icon="res://icon.svg"
+run/main_scene="res://main.tscn"
 
 [dotnet]
 
