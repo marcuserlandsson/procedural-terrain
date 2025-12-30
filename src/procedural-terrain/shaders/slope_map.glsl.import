@@ -1,0 +1,14 @@
+[remap]
+
+importer="glsl"
+type="RDShaderFile"
+uid="uid://4iol6wbpc8xs"
+path="res://.godot/imported/slope_map.glsl-7143337cff2c9105e000c5c16eb41f29.res"
+
+[deps]
+
+source_file="res://shaders/slope_map.glsl"
+dest_files=["res://.godot/imported/slope_map.glsl-7143337cff2c9105e000c5c16eb41f29.res"]
+
+[params]
+

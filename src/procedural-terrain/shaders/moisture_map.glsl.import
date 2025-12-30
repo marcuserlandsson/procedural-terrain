@@ -1,0 +1,14 @@
+[remap]
+
+importer="glsl"
+type="RDShaderFile"
+uid="uid://dwndhl2m5c3nn"
+path="res://.godot/imported/moisture_map.glsl-ad4be73132999267244f609e0e447ef7.res"
+
+[deps]
+
+source_file="res://shaders/moisture_map.glsl"
+dest_files=["res://.godot/imported/moisture_map.glsl-ad4be73132999267244f609e0e447ef7.res"]
+
+[params]
+

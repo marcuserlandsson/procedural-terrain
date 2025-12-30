@@ -7,6 +7,8 @@
 
 [node name="Terrain" type="Node3D" parent="."]
 script = ExtResource("1_terrain")
+should_generate_derived_maps = true
+save_debug_maps = true
 
 [node name="Camera3D" type="Camera3D" parent="."]
 transform = Transform3D(1, 0, 0, 0, 0, 1, 0, -1, 0, 0, 322.30374, 209.36072)

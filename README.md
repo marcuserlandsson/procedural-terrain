@@ -7,6 +7,7 @@ Project for the course DD2470, Advanced Topics in Visualization and Computer Gra
 **"How does procedurally generated environments affect the perceived realism of GPU-Based procedural distribution of vegetation?"**
 
 This project implements a simplified version of the GPU-based procedural vegetation distribution framework from the research paper, with the goal of comparing vegetation distribution on:
+
 - **Input maps**: Real-world height and water maps (baseline)
 - **Procedurally generated maps**: Algorithmically generated height and water maps (for comparison)
 
@@ -15,6 +16,7 @@ The comparison will evaluate how the source of terrain data affects the perceive
 ## Project Overview
 
 This project implements a GPU-based procedural vegetation distribution system based on the paper's framework. The system uses:
+
 - **Height maps** and **Water maps** as input
 - **Ecosystem layers** (L1: large trees, L2: shrubs, L3: ground plants)
 - **Adaptability Parameters** (Height, Slope, Moisture, Interaction)
@@ -26,6 +28,7 @@ This project implements a GPU-based procedural vegetation distribution system ba
 ### ✅ Phase 1: Foundation - COMPLETED
 
 1. **Map Loading and Terrain Visualization** ✅
+
    - Loads height maps (16-bit PNG support)
    - Loads water maps (derived from height maps)
    - Creates procedural terrain mesh from height map
@@ -33,6 +36,7 @@ This project implements a GPU-based procedural vegetation distribution system ba
    - Terrain mesh resolution matches image size (1:1 pixel-to-vertex)
 
 2. **Water Map Generation** ✅
+
    - Python script to derive water maps from height maps
    - Threshold-based water detection (dark pixels = water)
    - Optional Gaussian smoothing for natural water bodies
@@ -44,9 +48,49 @@ This project implements a GPU-based procedural vegetation distribution system ba
    - Space/Ctrl for vertical movement
    - Shift for faster movement
 
+### ✅ Phase 2: Derived Maps - COMPLETED
+
+1. **GPU Compute Shader Infrastructure** ✅
+
+   - MapManager class for managing compute shader execution
+   - RenderingDevice setup for GPU computation
+   - Shader loading and pipeline management
+
+2. **Derived Map Generation** ✅
+
+   - **Slope Map**: Local terrain height variation (parameterized distance: 12px)
+   - **Mean Height Map**: Weighted average of surrounding heights (radius: 32px)
+   - **Relative Height Map**: Height - Mean Height (depressions vs elevations)
+   - **Water Spread Map**: Moisture infiltration from water bodies (radius: 32px)
+   - **Moisture Map**: Final soil moisture compiled from all factors
+
+3. **Integration** ✅
+   - Maps generated on GPU using compute shaders
+   - All maps stored as single-channel textures (0-1 normalized)
+   - Maps never transferred to RAM (stay in VRAM for Phase 3)
+   - Debug visualization: Maps can be saved as PNG files for inspection
+
+### Debugging Generated Maps
+
+To verify that the generated maps are correct:
+
+1. **Enable map generation**: Set `should_generate_derived_maps = true` in the Terrain node
+2. **Enable debug saving**: Set `save_debug_maps = true` in the Terrain node
+3. **Run the scene**: Maps will be saved to `maps/gpu-derived-maps/` directory in the project root
+4. **Check the output**: Look in `maps/gpu-derived-maps/` folder in your project directory
+
+The saved maps will be:
+
+- `00_height_map.png` - Input height map
+- `01_water_map.png` - Input water map
+- `02_slope_map.png` - Generated slope map (white = steep, black = flat)
+- `03_mean_height_map.png` - Generated mean height map (smoothed height)
+- `04_relative_height_map.png` - Generated relative height (0.5 = average, <0.5 = depressions, >0.5 = elevations)
+- `05_water_spread_map.png` - Generated water spread (moisture from water bodies)
+- `06_moisture_map.png` - Final moisture map (compiled from all factors)
+
 ### 🔄 Next Steps (Not Yet Implemented)
 
-- Phase 2: Derived maps (Slope, Moisture, etc.) using GPU compute
 - Phase 3: Plant distribution system
 - Phase 4: Multi-layer ecosystem
 - Phase 5: GPU instancing for rendering
@@ -68,6 +112,7 @@ pip install -r requirements.txt
 ### Map Files Setup
 
 1. **Height Maps**: Place your height map PNG files in `maps/heightmaps/`
+
    - Supports 8-bit and 16-bit PNG images
    - Recommended sources:
      - [Terrain.party](https://terrain.party/)
@@ -75,16 +120,18 @@ pip install -r requirements.txt
      - [USGS EarthExplorer](https://earthexplorer.usgs.gov/)
 
 2. **Water Maps**: Generate water maps from height maps:
+
    ```bash
    # Single map
    python generate_water_map.py maps/heightmaps/YourMap.png
-   
+
    # All maps in batch
    python generate_all_water_maps.py
-   
+
    # With smoothing
    python generate_all_water_maps.py -s
    ```
+
    Water maps will be saved to `maps/derived-watermaps/`
 
 3. **Godot Project**: Copy maps to Godot project:
@@ -148,6 +195,7 @@ procedural-terrain/
 ### Water Level Calculation
 
 The water level is calculated based on **shoreline height**:
+
 1. Finds all land pixels adjacent to water pixels (shoreline)
 2. Calculates average height of shoreline pixels
 3. Uses that as the constant water level
@@ -165,39 +213,46 @@ The water level is calculated based on **shoreline height**:
 ## Implementation Plan (Original)
 
 ### Phase 1: Foundation — Map loading and basic terrain ✅
+
 1. ✅ Load Height and Water maps (from image files)
 2. ✅ Basic terrain mesh from Height map (simple plane with vertex displacement)
 3. ✅ Visualize the maps (debug view to see what we're working with)
 
-### Phase 2: Derived maps (GPU compute)
-4. Slope map (from Height map)
-5. Mean Height map (weighted average)
-6. Relative Height map (Height - Mean Height)
-7. Water Spread map (moisture diffusion from water)
-8. Moisture map (combine all factors)
+### Phase 2: Derived maps (GPU compute) ✅
+
+4. ✅ Slope map (from Height map)
+5. ✅ Mean Height map (weighted average)
+6. ✅ Relative Height map (Height - Mean Height)
+7. ✅ Water Spread map (moisture diffusion from water)
+8. ✅ Moisture map (combine all factors)
 
 ### Phase 3: Simple plant distribution
+
 9. Single layer distribution (start with one plant type)
 10. Adaptability curves (Height, Slope, Moisture parameters)
 11. Poisson Disk position tiles (pre-generated)
 12. Position evaluation (GPU compute shader that evaluates each position)
 
 ### Phase 4: Multi-layer ecosystem
+
 13. Layer system (L1, L2, L3)
 14. Predominance values (multiple plant types per layer)
 15. Density map (distance field for interaction)
 16. Layer-by-layer distribution (top to bottom)
 
 ### Phase 5: Rendering
+
 17. GPU instancing setup
 18. Basic plant models (simple meshes or billboards)
 19. Render all instances from position buffer
 
 ### Phase 6: Optimization (if needed)
+
 20. Simple quadtree/culling (only if performance requires it)
 21. View distance limits
 
 ### Phase 7: Procedural Generation (for research comparison)
+
 22. Procedural height map generation
 23. Procedural water map generation
 24. Comparison system between input and procedural maps

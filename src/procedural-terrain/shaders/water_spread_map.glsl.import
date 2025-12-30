@@ -1,0 +1,14 @@
+[remap]
+
+importer="glsl"
+type="RDShaderFile"
+uid="uid://bs8xechliehw1"
+path="res://.godot/imported/water_spread_map.glsl-3152beff41d5bee59f92d854f40eef16.res"
+
+[deps]
+
+source_file="res://shaders/water_spread_map.glsl"
+dest_files=["res://.godot/imported/water_spread_map.glsl-3152beff41d5bee59f92d854f40eef16.res"]
+
+[params]
+

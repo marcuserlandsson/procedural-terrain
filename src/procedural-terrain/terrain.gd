@@ -8,16 +8,23 @@ var image_name = "Aborrvattnet"
 @export var terrain_scale: float = 1.0  # Scale factor for terrain size (1.0 = 1 unit per pixel)
 @export var height_scale: float = 20.0    # How much to scale height values
 @export var resolution: int = -1        # Mesh resolution (vertices per side). -1 = match image size
+@export var should_generate_derived_maps: bool = false  # Enable Phase 2 map generation
+@export var save_debug_maps: bool = false  # Save generated maps as PNG files for inspection
 
 var height_map: Image
 var water_map: Image
 var actual_resolution: int = 256
+var map_manager: MapManager
 
 func _ready():
 	load_maps()
 	create_terrain()
 	if water_map:
 		create_water()
+	
+	# Phase 2: Generate derived maps if enabled
+	if should_generate_derived_maps:
+		generate_derived_maps()
 
 func load_maps():
 	# Load height map
@@ -257,3 +264,19 @@ func create_water():
 	mesh_instance.set_surface_override_material(0, material)
 	
 	print("Water mesh created")
+
+func generate_derived_maps():
+	# Initialize map manager and generate all Phase 2 maps
+	if not height_map or not water_map:
+		push_error("Cannot generate derived maps: height or water map missing!")
+		return
+	
+	map_manager = MapManager.new()
+	map_manager.height_scale = height_scale
+	map_manager.load_shaders()
+	map_manager.initialize_maps(height_map, water_map)
+	map_manager.generate_all_maps()
+	
+	# Save maps for debugging if enabled
+	if save_debug_maps:
+		map_manager.save_all_maps_debug()

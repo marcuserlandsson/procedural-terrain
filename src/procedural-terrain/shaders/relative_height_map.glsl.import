@@ -1,0 +1,14 @@
+[remap]
+
+importer="glsl"
+type="RDShaderFile"
+uid="uid://ybdul8r7klm1"
+path="res://.godot/imported/relative_height_map.glsl-2fa1a2f680dc40d74d17ad831a723368.res"
+
+[deps]
+
+source_file="res://shaders/relative_height_map.glsl"
+dest_files=["res://.godot/imported/relative_height_map.glsl-2fa1a2f680dc40d74d17ad831a723368.res"]
+
+[params]
+

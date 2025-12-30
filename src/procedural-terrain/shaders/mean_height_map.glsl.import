@@ -1,0 +1,14 @@
+[remap]
+
+importer="glsl"
+type="RDShaderFile"
+uid="uid://xphahqtejc73"
+path="res://.godot/imported/mean_height_map.glsl-733d96ff95d2f6106c28d9a8a2f397fc.res"
+
+[deps]
+
+source_file="res://shaders/mean_height_map.glsl"
+dest_files=["res://.godot/imported/mean_height_map.glsl-733d96ff95d2f6106c28d9a8a2f397fc.res"]
+
+[params]
+
