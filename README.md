@@ -70,28 +70,55 @@ This project implements a GPU-based procedural vegetation distribution system ba
    - Maps never transferred to RAM (stay in VRAM for Phase 3)
    - Debug visualization: Maps can be saved as PNG files for inspection
 
-### Debugging Generated Maps
+### Debugging Generated Maps and Plant Distribution
 
-To verify that the generated maps are correct:
+To verify that the generated maps and plant distribution are correct:
 
 1. **Enable map generation**: Set `should_generate_derived_maps = true` in the Terrain node
-2. **Enable debug saving**: Set `save_debug_maps = true` in the Terrain node
-3. **Run the scene**: Maps will be saved to `maps/gpu-derived-maps/` directory in the project root
-4. **Check the output**: Look in `maps/gpu-derived-maps/` folder in your project directory
+2. **Enable plant distribution**: Set `should_distribute_plants = true` in the Terrain node (requires Phase 2)
+3. **Enable debug saving**: Set `save_debug_maps = true` in the Terrain node
+4. **Run the scene**: Maps and plant positions will be saved to `maps/gpu-derived-maps/` directory in the project root
+5. **Check the output**: Look in `maps/gpu-derived-maps/` folder in your project directory
 
 The saved maps will be:
 
-- `00_height_map.png` - Input height map
-- `01_water_map.png` - Input water map
 - `02_slope_map.png` - Generated slope map (white = steep, black = flat)
 - `03_mean_height_map.png` - Generated mean height map (smoothed height)
 - `04_relative_height_map.png` - Generated relative height (0.5 = average, <0.5 = depressions, >0.5 = elevations)
 - `05_water_spread_map.png` - Generated water spread (moisture from water bodies)
 - `06_moisture_map.png` - Final moisture map (compiled from all factors)
+- `plant_positions.png` - Plant positions visualization (when Phase 3 is enabled)
+
+### ✅ Phase 3: Plant Distribution - COMPLETED
+
+1. **Poisson Disk Distribution** ✅
+
+   - Pre-generated position tiles using Bridson's algorithm
+   - Ensures minimum distance between positions (8px default)
+   - Tile-based distribution across the entire map
+
+2. **Position Evaluation System** ✅
+
+   - GPU compute shader implementing EVALUATEPOSITION algorithm from paper
+   - Evaluates each position against Height, Slope, and Moisture maps
+   - Uses adaptability curves to determine placement probability
+   - Follows paper's algorithm structure (lines 2-20 from Figure 9)
+
+3. **Adaptability Parameters** ✅
+
+   - **Height**: Prefers mid-range elevations (0.15-0.85 normalized)
+   - **Slope**: Prefers flatter areas (rejects slopes > 0.6)
+   - **Moisture**: Favors higher moisture (near water) with smooth falloff
+   - Balanced distribution: more plants near water, some in drier areas
+
+4. **Integration** ✅
+   - PlantDistribution manager orchestrates the distribution process
+   - Stores valid plant positions in array for Phase 5 rendering
+   - Optional debug visualization saves plant positions as PNG image
+   - Density map generation (prepared for Phase 4 multi-layer)
 
 ### 🔄 Next Steps (Not Yet Implemented)
 
-- Phase 3: Plant distribution system
 - Phase 4: Multi-layer ecosystem
 - Phase 5: GPU instancing for rendering
 - Phase 6: Procedural terrain generation (for comparison study)
@@ -166,10 +193,22 @@ procedural-terrain/
     ├── main.tscn                # Main scene
     ├── terrain.gd               # Terrain generation script
     ├── camera_controller.gd     # Camera controls
+    ├── map_manager.gd           # Phase 2: Derived map generation
+    ├── plant_distribution.gd    # Phase 3: Plant distribution manager
+    ├── plant_type.gd            # Plant type resource with adaptability parameters
+    ├── poisson_disk.gd          # Poisson Disk Distribution generator
     ├── SETUP.md                 # Additional setup details
+    ├── shaders/                 # GPU compute shaders
+    │   ├── slope_map.glsl
+    │   ├── mean_height_map.glsl
+    │   ├── relative_height_map.glsl
+    │   ├── water_spread_map.glsl
+    │   ├── moisture_map.glsl
+    │   └── evaluate_positions.glsl  # Phase 3: Position evaluation
     └── maps/                    # Maps for Godot (copy from root maps/)
         ├── heightmaps/
-        └── watermaps/
+        ├── watermaps/
+        └── gpu-derived-maps/    # Generated maps and debug outputs
 ```
 
 ## Technical Details
@@ -226,12 +265,12 @@ The water level is calculated based on **shoreline height**:
 7. ✅ Water Spread map (moisture diffusion from water)
 8. ✅ Moisture map (combine all factors)
 
-### Phase 3: Simple plant distribution
+### Phase 3: Simple plant distribution ✅
 
-9. Single layer distribution (start with one plant type)
-10. Adaptability curves (Height, Slope, Moisture parameters)
-11. Poisson Disk position tiles (pre-generated)
-12. Position evaluation (GPU compute shader that evaluates each position)
+9. ✅ Single layer distribution (start with one plant type)
+10. ✅ Adaptability curves (Height, Slope, Moisture parameters)
+11. ✅ Poisson Disk position tiles (pre-generated)
+12. ✅ Position evaluation (GPU compute shader that evaluates each position)
 
 ### Phase 4: Multi-layer ecosystem
 
