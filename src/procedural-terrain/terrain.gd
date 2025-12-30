@@ -10,11 +10,13 @@ var image_name = "Aborrvattnet"
 @export var resolution: int = -1        # Mesh resolution (vertices per side). -1 = match image size
 @export var should_generate_derived_maps: bool = false  # Enable Phase 2 map generation
 @export var save_debug_maps: bool = false  # Save generated maps as PNG files for inspection
+@export var should_distribute_plants: bool = false  # Enable Phase 3 plant distribution
 
 var height_map: Image
 var water_map: Image
 var actual_resolution: int = 256
 var map_manager: MapManager
+var plant_distribution: PlantDistribution
 
 func _ready():
 	load_maps()
@@ -25,6 +27,10 @@ func _ready():
 	# Phase 2: Generate derived maps if enabled
 	if should_generate_derived_maps:
 		generate_derived_maps()
+	
+	# Phase 3: Distribute plants if enabled
+	if should_distribute_plants:
+		distribute_plants()
 
 func load_maps():
 	# Load height map
@@ -280,3 +286,29 @@ func generate_derived_maps():
 	# Save maps for debugging if enabled
 	if save_debug_maps:
 		map_manager.save_all_maps_debug()
+
+func distribute_plants():
+	# Phase 3: Plant distribution
+	if not should_generate_derived_maps:
+		push_error("Phase 3 requires Phase 2 (derived maps) to be enabled!")
+		return
+	
+	if not map_manager:
+		push_error("MapManager not initialized!")
+		return
+	
+	plant_distribution = PlantDistribution.new(map_manager)
+	plant_distribution.load_shader()
+	
+	# Create a simple plant type for testing
+	var plant: PlantType = PlantType.new()
+	plant.name = "TestPlant"
+	
+	# For now, we'll use simple evaluation (curves will be added later)
+	# Distribute plants with a balanced threshold (lower to allow drier areas)
+	plant_distribution.distribute_plants(plant, 0.2)
+	
+	# Save debug visualization if enabled
+	if save_debug_maps:
+		plant_distribution.save_positions_debug()
+

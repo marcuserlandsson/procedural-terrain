@@ -1,0 +1,14 @@
+[remap]
+
+importer="glsl"
+type="RDShaderFile"
+uid="uid://csxrxtyfieewl"
+path="res://.godot/imported/evaluate_positions.glsl-a3b97c664d6bdf47a0b8a3c24f2f7dba.res"
+
+[deps]
+
+source_file="res://shaders/evaluate_positions.glsl"
+dest_files=["res://.godot/imported/evaluate_positions.glsl-a3b97c664d6bdf47a0b8a3c24f2f7dba.res"]
+
+[params]
+
