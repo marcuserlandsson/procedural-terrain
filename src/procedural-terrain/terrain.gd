@@ -11,12 +11,16 @@ var image_name = "Aborrvattnet"
 @export var should_generate_derived_maps: bool = false  # Enable Phase 2 map generation
 @export var save_debug_maps: bool = false  # Save generated maps as PNG files for inspection
 @export var should_distribute_plants: bool = false  # Enable Phase 3 plant distribution
+@export var should_distribute_ecosystem: bool = false  # Enable Phase 4 multi-layer ecosystem
+@export var ecosystem_resource: Resource  # Ecosystem resource for Phase 4 (Ecosystem class)
+@export var should_render_plants: bool = true  # Enable Phase 5 plant rendering
 
 var height_map: Image
 var water_map: Image
 var actual_resolution: int = 256
 var map_manager: MapManager
 var plant_distribution: PlantDistribution
+var plant_renderer: Node3D  # PlantRenderer (typed as Node3D for compatibility)
 
 func _ready():
 	load_maps()
@@ -28,9 +32,15 @@ func _ready():
 	if should_generate_derived_maps:
 		generate_derived_maps()
 	
-	# Phase 3: Distribute plants if enabled
-	if should_distribute_plants:
+	# Phase 3/4: Distribute plants if enabled
+	if should_distribute_ecosystem:
+		distribute_ecosystem()
+	elif should_distribute_plants:
 		distribute_plants()
+	
+	# Phase 5: Render plants if enabled
+	if should_render_plants and plant_distribution:
+		render_plants()
 
 func load_maps():
 	# Load height map
@@ -288,7 +298,7 @@ func generate_derived_maps():
 		map_manager.save_all_maps_debug()
 
 func distribute_plants():
-	# Phase 3: Plant distribution
+	# Phase 3: Single layer plant distribution
 	if not should_generate_derived_maps:
 		push_error("Phase 3 requires Phase 2 (derived maps) to be enabled!")
 		return
@@ -303,6 +313,8 @@ func distribute_plants():
 	# Create a simple plant type for testing
 	var plant: PlantType = PlantType.new()
 	plant.name = "TestPlant"
+	plant.trunk_radius = 0.5
+	plant.zone_of_influence = 2.0
 	
 	# For now, we'll use simple evaluation (curves will be added later)
 	# Distribute plants with a balanced threshold (lower to allow drier areas)
@@ -312,3 +324,70 @@ func distribute_plants():
 	if save_debug_maps:
 		plant_distribution.save_positions_debug()
 
+func distribute_ecosystem():
+	# Phase 4: Multi-layer ecosystem distribution
+	if not should_generate_derived_maps:
+		push_error("Phase 4 requires Phase 2 (derived maps) to be enabled!")
+		return
+	
+	if not map_manager:
+		push_error("MapManager not initialized!")
+		return
+	
+	if not ecosystem_resource:
+		push_error("Ecosystem resource not set! Please assign an Ecosystem resource in the Inspector.")
+		return
+	
+	# Verify it's an Ecosystem resource
+	if not ecosystem_resource.has_method("get_layer_plants"):
+		push_error("ecosystem_resource must be an Ecosystem resource!")
+		return
+	
+	plant_distribution = PlantDistribution.new(map_manager)
+	plant_distribution.load_shader()
+	
+	# Distribute ecosystem with multi-layer support
+	# Note: ecosystem_resource is typed as Resource but should be Ecosystem at runtime
+	plant_distribution.distribute_ecosystem(ecosystem_resource, 0.2)
+	
+	# Save debug visualization if enabled
+	if save_debug_maps:
+		plant_distribution.save_positions_debug()
+
+func render_plants():
+	# Phase 5: Render plants using simple shapes
+	if not plant_distribution:
+		push_error("PlantDistribution not initialized! Run plant distribution first.")
+		return
+	
+	if not height_map:
+		push_error("Height map not loaded!")
+		return
+	
+	# Create plant renderer node if it doesn't exist
+	if not plant_renderer:
+		var renderer_script := load("res://plant_renderer.gd") as GDScript
+		if renderer_script:
+			plant_renderer = Node3D.new()
+			plant_renderer.set_script(renderer_script)
+			plant_renderer.name = "PlantRenderer"
+			add_child(plant_renderer)
+		else:
+			push_error("Failed to load PlantRenderer script!")
+			return
+	
+	# Get map size
+	var map_size := height_map.get_size()
+	
+	# Render plants (call method dynamically since type isn't recognized at compile time)
+	if plant_renderer.has_method("render_plants_from_distribution"):
+		plant_renderer.render_plants_from_distribution(
+			plant_distribution,
+			height_map,
+			map_size,
+			terrain_scale,
+			height_scale,
+			ecosystem_resource if should_distribute_ecosystem else null
+		)
+	else:
+		push_error("PlantRenderer missing render_plants_from_distribution method!")

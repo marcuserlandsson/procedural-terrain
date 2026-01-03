@@ -1,0 +1,9 @@
+[gd_resource type="Resource" script_class="PlantType" load_steps=2 format=3 uid="uid://6hscqnvgsjol"]
+
+[ext_resource type="Script" uid="uid://ybl2vl5yw4u6" path="res://plant_type.gd" id="1_8mhl6"]
+
+[resource]
+script = ExtResource("1_8mhl6")
+name = "Large Tree"
+trunk_radius = 1.0
+zone_of_influence = 5.0

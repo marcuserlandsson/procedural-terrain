@@ -1,0 +1,13 @@
+[gd_resource type="Resource" script_class="Ecosystem" load_steps=6 format=3 uid="uid://dqeejqkjbq02d"]
+
+[ext_resource type="Script" uid="uid://ybl2vl5yw4u6" path="res://plant_type.gd" id="1_lgdhv"]
+[ext_resource type="Resource" uid="uid://6hscqnvgsjol" path="res://resources/plant_type_large_tree.tres" id="2_l8cxp"]
+[ext_resource type="Resource" uid="uid://wig5pmgh0jir" path="res://resources/plant_type_shrub.tres" id="3_irj3i"]
+[ext_resource type="Resource" uid="uid://b2w8xasdhpdw8" path="res://resources/plant_type_grass.tres" id="4_6twy8"]
+[ext_resource type="Script" uid="uid://c6mpgot6qrj2u" path="res://ecosystem.gd" id="5_owu7j"]
+
+[resource]
+script = ExtResource("5_owu7j")
+layer1_plants = Array[ExtResource("1_lgdhv")]([ExtResource("2_l8cxp")])
+layer2_plants = Array[ExtResource("1_lgdhv")]([ExtResource("3_irj3i")])
+layer3_plants = Array[ExtResource("1_lgdhv")]([ExtResource("4_6twy8")])

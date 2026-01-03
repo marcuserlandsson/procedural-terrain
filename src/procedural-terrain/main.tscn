@@ -1,7 +1,8 @@
-[gd_scene load_steps=3 format=3 uid="uid://l4jvpo3xs27y"]
+[gd_scene load_steps=4 format=3 uid="uid://l4jvpo3xs27y"]
 
 [ext_resource type="Script" uid="uid://wsw0c7jdo80h" path="res://terrain.gd" id="1_terrain"]
 [ext_resource type="Script" uid="uid://c86kibxlcnidu" path="res://camera_controller.gd" id="2_camera"]
+[ext_resource type="Resource" uid="uid://dqeejqkjbq02d" path="res://resources/ecosystem_forest.tres" id="2_h2yge"]
 
 [node name="Main" type="Node3D"]
 
@@ -10,6 +11,8 @@ script = ExtResource("1_terrain")
 should_generate_derived_maps = true
 save_debug_maps = true
 should_distribute_plants = true
+should_distribute_ecosystem = true
+ecosystem_resource = ExtResource("2_h2yge")
 
 [node name="Camera3D" type="Camera3D" parent="."]
 transform = Transform3D(1, 0, 0, 0, 0, 1, 0, -1, 0, 0, 322.30374, 209.36072)

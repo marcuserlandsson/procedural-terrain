@@ -155,10 +155,24 @@ void main() {
     if (l > 1) {
         // Line 8: P ← P × eval(Curves_interact, DensityMap^l-1_xy)
         float density_upper = texture(sampler2D(density_map_upper, linear_sampler), uv).r;
-        P *= evaluate_interaction_curve(density_upper);
+        float interaction_mult = evaluate_interaction_curve(density_upper);
+        P *= interaction_mult;
         
         // Line 9: P ← P × (1 – [DensityMap^l-1_xy])
-        P *= (1.0 - density_upper);
+        // This prevents placement where upper layers have plants
+        float avoidance_mult = (1.0 - density_upper);
+        P *= avoidance_mult;
+        
+        // Early exit if probability is zero due to upper layer collision
+        if (P <= 0.0) {
+            valid_positions[index] = vec4(map_pos.x, map_pos.y, -1.0, 0.0);
+            ivec2 pixel_coord = ivec2(map_pos);
+            if (pixel_coord.x >= 0 && pixel_coord.x < int(map_size.x) && 
+                pixel_coord.y >= 0 && pixel_coord.y < int(map_size.y)) {
+                imageStore(density_map, pixel_coord, vec4(0.0, 0.0, 0.0, 1.0));
+            }
+            return;
+        }
     }
     
     // Line 11: P ← P × eval(Curves_height, Hmap_xy)

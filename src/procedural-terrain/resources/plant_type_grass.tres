@@ -1,0 +1,9 @@
+[gd_resource type="Resource" script_class="PlantType" load_steps=2 format=3 uid="uid://b2w8xasdhpdw8"]
+
+[ext_resource type="Script" uid="uid://ybl2vl5yw4u6" path="res://plant_type.gd" id="1_pvrqt"]
+
+[resource]
+script = ExtResource("1_pvrqt")
+name = "Grass"
+trunk_radius = 0.1
+zone_of_influence = 0.5
